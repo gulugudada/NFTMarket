@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.c201901090124.nftmarket.dao.UserInfoMapper">
+    <insert id="addUserInfo" parameterType="com.c201901090124.nftmarket.entity.UserInfo">
+        INSERT INTO userinfo(account,avatar) VALUES (#{account},#{avatar})
+    </insert>
+</mapper>

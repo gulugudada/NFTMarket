@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.c201901090124.nftmarket.dao.AccountMapper">
+    <select id="findPasswordByAccount" parameterType="String" resultType="String">
+        SELECT password FROM account WHERE account = #{account}
+    </select>
+    <select id="findUserNameAvatarByAccount" parameterType="String" resultType="com.c201901090124.nftmarket.entity.Account">
+        SELECT * FROM account WHERE account = #{account}
+    </select>
+    <select id="findAccountByAccount" parameterType="String" resultType="Integer">
+        SELECT COUNT(*) FROM account WHERE account = #{account}
+    </select>
+    <select id="findAccountByUsername" parameterType="String" resultType="Integer">
+        SELECT COUNT(*) FROM account WHERE username = #{username}
+    </select>
+    <insert id="addAccount" parameterType="com.c201901090124.nftmarket.entity.Account">
+        INSERT INTO account(account,username,password,createtime) VALUES (#{account},#{username},#{password},#{createtime})
+    </insert>
+    <update id="resetPassword" parameterType="String">
+        UPDATE account SET password = #{password} WHERE account = #{account}
+    </update>
+    <update id="updateLastTime" parameterType="String">
+        UPDATE account SET lasttime = #{lasttime} WHERE account = #{account}
+    </update>
+    <update id="updateLastLoginIp" parameterType="String">
+        UPDATE account SET lastloginip = #{ipAddress} WHERE account = #{account}
+    </update>
+    <update id="updateAvatar" parameterType="String">
+        UPDATE userinfo SET avatar = #{avatarurl} WHERE account = #{account}
+    </update>
+</mapper>

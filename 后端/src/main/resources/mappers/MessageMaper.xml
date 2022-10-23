@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.c201901090124.nftmarket.dao.MessageMapper">
+    <insert id="addMessage" parameterType="com.c201901090124.nftmarket.entity.Message">
+        INSERT INTO message(`from`,`to`,content,sendtime) VALUES (#{from},#{to},#{content},#{sendTime})
+    </insert>
+    <delete id="deleteMessageAll" parameterType="String">
+        DELETE FROM message WHERE `to` = #{account}
+    </delete>
+    <select id="haveMessage" parameterType="String" resultType="Integer">
+        SELECT COUNT(*) FROM message WHERE `to` = #{account}
+    </select>
+    <select id="findMessage" resultType="com.c201901090124.nftmarket.entity.Message" parameterType="String">
+        SELECT * FROM message WHERE `to` = #{account} ORDER BY id
+    </select>
+</mapper>
