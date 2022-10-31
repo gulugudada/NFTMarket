@@ -14,6 +14,7 @@
     "element-plus": "^1.0.2-beta.28",
     "ethers": "^5.7.1",
     "jquery": "^3.6.1",
+    "sha-1": "^1.0.0",
     "ts-cookies": "^1.0.0",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",
