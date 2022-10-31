@@ -13,7 +13,7 @@
 				<template #label >
 					<div style="height: 80px;display: flex;">
 						<a title="用户首页" @click="this.$router.push('/userhome')">
-							<el-avatar :size="60" :src="$store.state.circleUrl" style="margin-top: 10px;"></el-avatar>
+							<el-avatar :size="60" :src="$store.state.url + $store.state.circleUrl" style="margin-top: 10px;"></el-avatar>
 						</a>
 						<p style="padding-top: 20px;padding-left: 10px;font-size: 18px;color: #000000;">{{this.$store.state.username}}</p>
 					</div>
@@ -25,7 +25,7 @@
 				<template #label>
 					<div style="height: 80px;display: flex;">
 						<el-badge :hidden="!chat.haveMessage" :value="chat.unreadMessage" type="danger">
-						    <el-avatar :size="60" :src="$store.state.circleUrl" style="margin-top: 10px;"></el-avatar>
+						    <el-avatar :size="60" :src="$store.state.url+chat.circleUrl" style="margin-top: 10px;"></el-avatar>
 						</el-badge>
 						<div>
 							<p style="height: 30px;padding-top: 2px;padding-left: 10px;font-size: 16px;color: #000000;">{{chat.username}}</p>
@@ -41,28 +41,30 @@
 						</el-header>
 						<el-divider />
 					    <el-main>
-							<el-scrollbar>
-							    <div v-for="item in chat.message" class="message-demo">
-									<div style="width: 140px;height: 20px;padding-left: 347px;text-align: center;">
+							<el-scrollbar always>
+							    <div v-for="(item,index1) in chat.message" class="message-demo">
+									<div v-if="timeCheck(chat,index1)" style="width: 140px;height: 20px;padding-left: 347px;text-align: center;">
 										<p style="width: auto;background-color: #ccc;border-radius: 15px 15px 15px 15px;">
 											{{timeDecide(item.sendTime)}}
 										</p>
 									</div>
 									<div v-if="item.from === chat.account">
-										<a title="用户首页" @click="this.$router.push('/userhome')">
-											<el-avatar :size="40" :src="item.circleUrl" style="margin-top: 10px;"></el-avatar>
+										<a title="用户首页" @click="this.$router.push('/userhome')" style="float: left;">
+											<el-avatar :size="40" :src="$store.state.url+chat.circleUrl" style="margin-top: 10px;"></el-avatar>
 										</a>
-										<span style="position: absolute;margin-top: 20px;margin-left: 10px;">
+										<span style="float: left;margin-top: 20px;margin-left: 10px;">
 											{{item.content}}
 										</span>
+										<div style="clear: both;"></div>
 									</div>
-									<div v-else style="height: 74px;">
-										<a title="用户首页" @click="this.$router.push('/userhome')" style="float: right;">
-											<el-avatar :size="40" :src="item.circleUrl" style="margin-top: 10px;"></el-avatar>
+									<div v-else>
+										<a title="用户首页" @click="this.$router.push('/userhome')" style="float: right;margin-right: 18px;">
+											<el-avatar :size="40" :src="$store.state.url + $store.state.circleUrl" style="margin-top: 10px;"></el-avatar>
 										</a>
 										<span style="float: right;margin-top: 20px;margin-right: 10px;">
 											{{item.content}}
 										</span>
+										<div style="clear: both;"></div>
 									</div>
 								</div>
 							</el-scrollbar>
@@ -75,10 +77,11 @@
 								:clearable="true"
 								maxlength="500"
 								show-word-limit
-								:input="inputToSend(index)"
 								style="font-size: 18px;color: #000000;"
 							/>
-							<span style="position: absolute;bottom: 25px;right: 40px;font-size: 12px;color: #ccc;">按下Enter发送内容</span>
+							<el-button style="position: absolute;right: 40px;bottom: 25px;" type="primary" circle @click="inputToSend(index)">
+								<el-icon :size="20"><Promotion /></el-icon>
+							</el-button>
 						</el-footer>
 					</el-container>
 				</div>
@@ -88,8 +91,9 @@
 </template>
 
 <script  lang="ts" setup>
-	import { ref,onMounted,reactive,getCurrentInstance } from 'vue'
+	import { ref,onMounted,reactive,getCurrentInstance,toRaw  } from 'vue'
 	import { ElNotification } from 'element-plus'
+	import $ from 'jquery'
 	const { proxy } = getCurrentInstance()
 	const emit = defineEmits(['sendMessage'])
 	const select = ref('0')
@@ -97,32 +101,44 @@
 	const textarea = reactive([])
 	const inputToSend = (index) => {
 		if (proxy.textarea[index] !== undefined) {
-			if (proxy.textarea[index].slice(proxy.textarea[index].length-1,proxy.textarea[index].length) === '\n') {
+			if (proxy.textarea[index] !== '') {
 				const message = {
 					id: 0,
 					from: proxy.$store.state.account,
 					to: proxy.$store.state.chatList[index].account,
-					content: proxy.textarea[index].slice(0,proxy.textarea[index].length-1),
+					content: proxy.textarea[index],
 					sendTime: timestampToTime()
 				};
 				if (index !== 0) {
+					//将Proxy对象转换成原始对象
+					let chatList = toRaw(proxy.$store.state.chatList);
 					let list = [];
-					let list1 = [];
-					list.push(proxy.$store.state.chatList.splice(index));
+					//必须保持对象的类型不能变
+					const list1 = reactive([]);
+					list.push(chatList[index]);
 					//textarea也需要换位
-					list.push(textarea.splice(index));
-					for (let i = 0;i < proxy.$store.state.chatList.length;i++) {
-						list.push(proxy.$store.state.chatList[i]);
-						list1.push(textarea[i]);
+					list1.push(proxy.textarea[index]);
+					for (let i = 0;i < chatList.length;i++) {
+						if (i !== index) {
+							list.push(chatList[i]);
+							list1.push(proxy.textarea[i]);
+						}
 					}
 					proxy.$store.state.chatList = list;
+					proxy.textarea = list1;
 					proxy.select = '1';
 				}
 				emit('sendMessage',message);
-				console.log(proxy.$store.state.chatList);
 				proxy.$store.state.chatList[0].message.push(message);
 				proxy.textarea[0] = '';
 				renovate();
+			}
+			else {
+				ElNotification({
+				    title: 'Error',
+				    message: '内容不能为空！',
+				    type: 'error',
+				})
 			}
 		}
 	}
@@ -146,6 +162,18 @@
 		}
 		return value;
 	}
+	//消息时间检查，如果时间一样后面的消息不显示时间
+	const timeCheck =(chat,index) => {
+		if (chat.message[index-1] === undefined) {
+			return true;
+		}
+		else {
+			if (chat.message[index-1].sendTime === chat.message[index].sendTime) {
+				return false;
+			}
+		}
+		return true;
+	}
 	const complement = (value: any) => {
 		return value < 10 ? `0${value}` : value;
 	}
@@ -157,24 +185,32 @@
 	const removeTab = (name: TabPanelName) => {
 		//删除会话时要删除会话和对应的输入框
 		proxy.$store.state.chatList.splice(name-1,1);
-		textarea.splice(name-1,1);
+		proxy.textarea.splice(name-1,1);
+		select.value = '0';
 	}
 	const renovate = () => {
 		//用来刷新页面
 		proxy.selectNum += 1;
 	}
 	const checkSelect = (flag) => {
-		renovate();
-		// if (select !== '0') {
-		// 	var a = Number(select);
-		// 	//当来消息时判断该消息是不是就是给当前所在的那个会话的
-		// 	if (proxy.$store.state.chatList[a-1].account === from) {
-		// 		return true;
-		// 	}
-		// 	else {
-		// 		return false;
-		// 	}
-		// }
+		if (flag !== -1) {
+			//是否是当前会话
+			if (flag === parseInt(select.value)-1) {
+				select.value = '1';
+			}
+			else {
+				if (select.value !== '0') {
+					select.value = parseInt(select.value) + 1 + '';
+				}
+				proxy.$store.state.chatList[0].haveMessage = true;
+				proxy.$store.state.chatList[0].unreadMessage += 1;
+			}
+		}
+		else {
+			if (select.value !== '0') {
+				select.value = parseInt(select.value) + 1 + '';
+			}
+		}
 	}
 	onMounted(() => {
 		let chatList = proxy.$store.state.chatList;
@@ -244,5 +280,8 @@
 		position: absolute;
 		top: 33px;
 		right: 10px;
+	}
+	.el-notification .el-icon-success {
+		color: #67c23a !important;
 	}
 </style>

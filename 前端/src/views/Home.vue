@@ -12,7 +12,7 @@
 						<el-row :gutter="20" style="height: 56px;width: 100%;background-color: #ffffff;">
 							<el-col :span="3">
 								<a class="toolbar-logo" title="NFT商城首页" href="/">
-									<p>NFT商城</p>
+									<p>NFT交易平台</p>
 								</a>
 							</el-col>
 							<el-col :span="6">
@@ -55,7 +55,7 @@
 								<div style="width: 70px;height: 100%;float: left;margin-left: 10px;">
 									<el-dropdown v-if="$store.state.isLogin" style="margin-right: 30px">
 									    <a title="用户首页" @click="this.$router.push('/userhome')">
-									    	<el-avatar :size="50" :src="$store.state.circleUrl"  style="margin-top: 3.5px;margin-left: 10px;margin-right: 10px;"></el-avatar>
+									    	<el-avatar :size="50" :src="$store.state.url + $store.state.circleUrl"  style="margin-top: 3.5px;margin-left: 10px;margin-right: 10px;"></el-avatar>
 									    </a>
 									    <template #dropdown>
 											<el-dropdown-menu>
@@ -111,7 +111,7 @@
 	    </el-form>
 		<template #footer>
 			<div>
-				<el-button type="primary" style="margin-right: 100px;" @click="login()">登录</el-button>
+				<el-button type="primary" style="margin-right: 100px;" @click="login(0)">登录</el-button>
 				<el-button @click="loginForm.account='',loginForm.password=''">重置</el-button>
 			</div>
 			<el-button type="text" style="color: #000000;margin-right: 20px;margin-top: 10px;" @click="dialogResetPasswordVisible = true,dialogLoginVisible = false,cloceLogin()">忘记密码？</el-button>
@@ -185,13 +185,13 @@
 
 <script lang="ts" setup>
 	import { ref,onMounted,reactive,getCurrentInstance } from 'vue'
+	import { ElNotification } from 'element-plus'
 	import Cookies from "ts-cookies"
 	const { proxy } = getCurrentInstance()
 	const bannerImage = ref([
 		"https://s1.imagehub.cc/images/2021/11/09/_b5770dfc-28f3-40ae-9008-1f175d8a5391-10886022.webp",
 		"https://s1.imagehub.cc/images/2021/11/09/_374c7865-67ea-45e3-877c-d1c67b92cc5d-10886022.webp",
-		"https://s1.imagehub.cc/images/2021/11/09/_df764511-2618-428d-8373-c6c78aede70c-10886022.webp",
-		"https://s1.imagehub.cc/images/2021/11/09/_Konachan.com---203963-sample-.webp"
+		"https://s1.imagehub.cc/images/2021/11/09/_df764511-2618-428d-8373-c6c78aede70c-10886022.webp"
 	])
 	const select = ref('商品')
 	const search = ref('')
@@ -240,7 +240,8 @@
 		password3.value = ''
 	}
 	//登录表单提交
-	const login = () => {
+	const login = (flag: int) => {
+		var sha1 = require('sha-1')
 		if(loginForm.account === ''){
 			proxy.$message.error("账号不能为空！")
 		}
@@ -249,9 +250,14 @@
 		}
 		else {
 			var that = proxy
+			if (flag === 0) {
+				that.loginForm.password = sha1(that.loginForm.password)
+			}
+			var password = that.loginForm.password
 			proxy.$axios.post(that.$store.state.url + '/login',loginForm)
 			.then(res => {
 				if(res.data.code === -1){
+					that.loginForm.password = '';
 					that.$message.error(res.data.msg);
 				}
 				else {
@@ -260,6 +266,7 @@
 					that.$store.state.circleUrl = res.data.avatar;
 					that.$store.state.username = res.data.username;
 					that.$store.state.account = res.data.account;
+					that.$store.state.password = password;
 					that.dialogLoginVisible = false;
 					cloceLogin();
 					connectSocket();
@@ -300,7 +307,7 @@
 		}
 		else {
 			var that = proxy;
-			proxy.$axios.post('/getCode1',{
+			proxy.$axios.post(that.$store.state.url + '/getCode1',{
 				account:resetPasswordForm.account,
 			})
 			.then(res => {
@@ -342,6 +349,7 @@
 		}, 1000); //1000毫秒后执行
 	}
 	const register = () => {
+		var sha1 = require('sha-1')
 		if(registerForm.account === ''){
 			proxy.$message.error("请先输入手机号！");
 		}
@@ -359,9 +367,11 @@
 		}
 		else {
 			var that = proxy;
-			proxy.$axios.post('http://localhost:8080/registerAccount',registerForm)
+			that.registerForm.password = sha1(that.registerForm.password)
+			proxy.$axios.post(that.$store.state.url + '/registerAccount',registerForm)
 			.then(res => {
 				if(res.data.code === -1){
+					that.registerForm.password = '';
 					that.$message.error(res.data.msg);
 				}
 				else {
@@ -390,9 +400,11 @@
 		}
 		else {
 			var that = proxy;
-			proxy.$axios.post('http://localhost:8080/resetPassword',resetPasswordForm)
+			that.resetPasswordForm.password = sha1(that.resetPasswordForm.password);
+			proxy.$axios.post(that.$store.state.url + '/resetPassword',resetPasswordForm)
 			.then(res => {
 				if(res.data.code === -1){
+					that.resetPasswordForm.password = '';
 					that.$message.error(res.data.msg);
 				}
 				else {
@@ -411,6 +423,7 @@
 		proxy.$store.state.circleUrl='';
 		proxy.$store.state.username='';
 		proxy.$store.state.account='';
+		proxy.$store.state.password='';
 		proxy.$store.state.haveMessage=false;
 		Cookies.remove('loginStatus');
 		proxy.$message({message: '已退出'});
@@ -423,12 +436,11 @@
 			window.WebSocket=window.MozWebSocket;
 		}
 		if(window.WebSocket){
-			proxy.socket=new WebSocket("ws://localhost:8088/ws");//websocket用的是ws协议
+			proxy.socket=new WebSocket(proxy.$store.state.wsurl + "/ws");//websocket用的是ws协议
 			//接受到消息
 			proxy.socket.onmessage = (event) => {
 				var message = JSON.parse(event.data);
 				let chatList = proxy.$store.state.chatList;
-				console.log(message);
 				let flag = -1;
 				//如果chatList中存在会话，标识flag置为i
 				for (let i = 0;i < chatList.length;i++) {
@@ -439,8 +451,6 @@
 				}
 				if (flag !== -1) {
 					proxy.$store.state.chatList[flag].message.push(message);
-					proxy.$store.state.chatList[flag].haveMessage = true;
-					proxy.$store.state.chatList[flag].unreadMessage += 1;
 					let list = [];
 					list.push(proxy.$store.state.chatList[flag]);
 					for (let i = 0;i < proxy.$store.state.chatList.length;i++) {
@@ -449,7 +459,6 @@
 						}
 					}
 					proxy.$store.state.chatList = list;
-					console.log(proxy.$store.state.chatList[0].message);
 				}
 				else {
 					var chat = {
@@ -460,13 +469,13 @@
 						haveMessage:true,
 						unreadMessage:1
 					}
-					proxy.$axios.post('http://localhost:8080/getAccount',{
+					proxy.$axios.post(proxy.$store.state.url + '/getAccount',{
 						account:chat.account
 					})
 					.then(res => {
-						var account = JSON.parse(res.data.msg);
+						var account = res.data.data;
 						chat.username = account.username;
-						chat.circleUrl = account.circleUrl;
+						chat.circleUrl = account.avatar;
 						chat.message.push(message);
 						let list = [];
 						list.push(chat);
@@ -519,14 +528,14 @@
 	const saveCookie = () => {
 		if (proxy.$store.state.isLogin) {
 			var loginStatus = {
-				isLogin: true,
-				circleUrl: proxy.$store.state.circleUrl,
-				username: proxy.$store.state.username,
 				account: proxy.$store.state.account,
+				password: proxy.$store.state.password,
 				haveMessage: proxy.$store.state.haveMessage
 			}
 			//保存一个7天时效的Cookie
 			Cookies.set('loginStatus', loginStatus, { expires: 7 })
+			//根据账号保存一个30天时效的有关聊天记录的Cookie
+			Cookies.set(proxy.$store.state.account + 'chatList', proxy.$store.state.chatList, { expires: 30 })
 		}
 	}
 	const connectMetaMask = () => {
@@ -570,22 +579,22 @@
 		var str = Cookies.get('loginStatus')
 		if (str != undefined) {
 			var loginStatus = JSON.parse(str)
-			proxy.$store.state.isLogin = true
-			proxy.$store.state.circleUrl = loginStatus.circleUrl
-			proxy.$store.state.username = loginStatus.username
-			proxy.$store.state.account = loginStatus.account
-			proxy.$store.state.haveMessage = loginStatus.haveMessage
-			var chatList = Cookies.get('chatList')
-			if (chatList != undefined) {
-				proxy.$store.state.chatList = chatList
-			}
-			connectSocket()
-			var haveMessage = Cookies.get('haveMessage')
-			if (haveMessage != undefined) {
-				proxy.$store.state.haveMessage = haveMessage
+			proxy.loginForm.account = loginStatus.account;
+			proxy.loginForm.password = loginStatus.password;
+			login(1);
+			if (proxy.$store.state.isLogin) {
+				proxy.$store.state.haveMessage = loginStatus.haveMessage
+				var chatList = Cookies.get(proxy.$store.state.account + 'chatList')
+				if (chatList != undefined) {
+					proxy.$store.state.chatList = JSON.parse(chatList);
+				}
+				var haveMessage = Cookies.get('haveMessage')
+				if (haveMessage != undefined) {
+					proxy.$store.state.haveMessage = haveMessage
+				}
 			}
 		}
-		proxy.$router.push("/chat")
+		proxy.$router.push("/homepage")
 		//添加监听，当网页关闭时保存当前状态为Cookie
 		window.addEventListener('beforeunload', e => proxy.saveCookie(e))
 	})
@@ -605,9 +614,9 @@
 	}
 	.toolbar-logo {
 		display:block;
-		font-size: 40px;
-		margin-top: 2px;
-		margin-left: 10px;
+		font-size: 28px;
+		margin-top: 12px;
+		margin-left: 4px;
 		background-image: -webkit-linear-gradient(left,blue,#66ffff 10%,#cc00ff 20%,#CC00CC 30%, #CCCCFF 40%, #00FFFF 50%,#CCCCFF 60%,#CC00CC 70%,#CC00FF 80%,#66FFFF 90%,blue 100%);
 		-webkit-text-fill-color: transparent;/* 将字体设置成透明色 */
 		-webkit-background-clip: text;/* 裁剪背景图，使文字作为裁剪区域向外裁剪 */
@@ -634,6 +643,6 @@
 		padding-bottom: 0px;
 	}
 	.el-notification .el-icon-success {
-		color: #67c23a;
+		color: #67c23a !important;
 	}
 </style>

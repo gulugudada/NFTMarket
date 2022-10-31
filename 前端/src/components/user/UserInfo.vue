@@ -1,6 +1,6 @@
 <template>
 	<div class="avatar-uploader">
-		<el-avatar :size="120" :src="$store.state.circleUrl" />
+		<el-avatar :size="120" :src="$store.state.url + $store.state.circleUrl" />
 		<el-avatar v-if="dialogAvatarVisible" class="el-upload-list__item-actions">
 			<div style="width: 100%;height: 100%;position: relative;" class="el-upload-list__item-actions-div">
 				<span
@@ -19,11 +19,11 @@
 		</el-avatar>
 	</div>
 	<el-dialog v-model="dialogPreviewVisible">
-	    <img style="width: 500px;height: 500px;" :src="this.$store.state.circleUrl" alt="Preview Image" />
+	    <img style="width: 500px;height: 500px;" :src="$store.state.url + $store.state.circleUrl" alt="Preview Image" />
 	</el-dialog>
 	<el-dialog v-model="dialogUploadVisible">
 	    <el-upload
-			action="http://localhost:8080/uploadAvatar"
+			:action="$store.state.url + '/uploadAvatar'"
 	        drag
 			class="upload-diaload-upload"
 			:show-file-list="false"
