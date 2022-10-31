@@ -83,12 +83,11 @@ public class AccountController {
 
     /**
      * 根据账号获得账号信息
-     * @param account
+     * @param map
      * @return
-     * @throws Exception
      */
     @PostMapping("getAccount")
-    public Result getAccount(@RequestParam("account")String account) throws Exception {
-        return accountService.getAccount(account);
+    public Result getAccount(@RequestBody Map<String, String> map) {
+        return accountService.getAccount(map.get("account"));
     }
 }

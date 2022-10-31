@@ -141,7 +141,7 @@ public class AccountServiceImpl implements AccountService {
         if (json.getInteger("code") == -1) {
             return Result.error(-1,json.getString("msg"));
         }
-        String avatarURL = "http://localhost:8080/avatar/" + json.getString("msg");
+        String avatarURL = "/avatar/" + json.getString("msg");
         if (accountMapper.updateAvatar(account,avatarURL) == 1) {
             Result result = new Result();
             result.put("msg","上传成功");
@@ -154,5 +154,15 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Result getAccount(String account) {
         return Result.ok(accountMapper.findUserNameAvatarByAccount(account));
+    }
+
+    @Override
+    public Result updateLoginStatus(String account, HttpServletRequest request) {
+        if (accountMapper.updateLastTime(account,DateUtil.getDate()) > 0) {
+            if (accountMapper.updateLastLoginIp(account,IpAddressUtil.getIpAddr(request)) > 0) {
+                return Result.ok("登录状态更新成功");
+            }
+        }
+        return Result.error(-1,"登录状态更新失败");
     }
 }

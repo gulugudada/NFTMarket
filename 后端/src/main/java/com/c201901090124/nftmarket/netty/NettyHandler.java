@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 上文中需要自定义处理的handler
+ * 自定义处理的handler
  * TextWebSocketFrame  用于为websockt处理文本的对象
  * @author 小小怪
  * @title NettyHandler
@@ -45,8 +45,7 @@ public class NettyHandler extends SimpleChannelInboundHandler<TextWebSocketFrame
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         clients.add(ctx.channel());
         channelMap1.put(ctx.channel().id().asShortText(),"");
-        System.out.println("客户端连接，当前连接的channel的短ID是：" +ctx.channel().id().asShortText());
-        System.out.println(channelMap);
+//        System.out.println("客户端连接，当前连接的channel的短ID是：" +ctx.channel().id().asShortText());
     }
 
     //客户端销毁的时候触发，
@@ -56,14 +55,14 @@ public class NettyHandler extends SimpleChannelInboundHandler<TextWebSocketFrame
         //clients.remove(ctx.channel());
         channelMap.remove(channelMap1.get(ctx.channel().id().asShortText()));
         channelMap1.remove(ctx.channel().id().asShortText());
-        System.out.println("客户端断开，当前被移除的channel的短ID是：" +ctx.channel().id().asShortText());
+//        System.out.println("客户端断开，当前被移除的channel的短ID是：" +ctx.channel().id().asShortText());
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, TextWebSocketFrame msg) throws Exception {
         //客户端传递过来的消息
         if (msg.text().contains("{")) {//判断是Json
-            System.out.println("客户端的消息是:" + msg.text());
+//            System.out.println("客户端的消息是:" + msg.text());
             JSONObject message = (JSONObject) JSONObject.parse(msg.text());
             String from = message.getString("from");
             String to = message.getString("to");
@@ -91,7 +90,7 @@ public class NettyHandler extends SimpleChannelInboundHandler<TextWebSocketFrame
                 }
                 messageMapper.deleteMessageAll(content);
             }
-            System.out.println("接收到了客户端的消息是:" + content);
+//            System.out.println("接收到了客户端的消息是:" + content);
         }
         //将客户端发送过来的消息刷到所有的channel中
 //        for(Channel channel : clients){

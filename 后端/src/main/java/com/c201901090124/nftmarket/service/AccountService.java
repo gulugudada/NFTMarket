@@ -21,4 +21,5 @@ public interface AccountService {
     Result getCode1(String account) throws Exception;
     Result uploadAvatar(String account, MultipartFile file) throws IOException;
     Result getAccount(String account);
+    Result updateLoginStatus(String account, HttpServletRequest request);
 }
