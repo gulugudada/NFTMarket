@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import Home from '../views/Home.vue'
 
 const routes: Array<RouteRecordRaw> = [
@@ -8,14 +8,53 @@ const routes: Array<RouteRecordRaw> = [
 		component: Home,
 		children:[
 			{
-				path:'/homepage',
-				name:'homepage',
-				component: () => import(/* webpackChunkName: "about" */ '../components/home/HomePage.vue')
+				path:'/blog',
+				name:'blog',
+				component: () => import(/* webpackChunkName: "about" */ '../components/blog/Blog.vue'),
+				children:[
+					{
+						path:'/blog/recommend',
+						name:'blogrecommend',
+						component: () => import(/* webpackChunkName: "about" */ '../components/blog/BlogRecommend.vue')
+					},
+					{
+						path:'/blog/attention',
+						name:'blogattention',
+						component: () => import(/* webpackChunkName: "about" */ '../components/blog/BlogAttention.vue')
+					},
+					{
+						path:'/blog/latest',
+						name:'bloglatest',
+						component: () => import(/* webpackChunkName: "about" */ '../components/blog/BlogLatest.vue')
+					}
+				]
+			},
+			{
+				path:'/message',
+				name:'message',
+				component: () => import(/* webpackChunkName: "about" */ '../components/message/Message.vue'),
+				children:[
+					{
+						path:'/message/comment',
+						name:'messagecomment',
+						component: () => import(/* webpackChunkName: "about" */ '../components/message/Comment.vue')
+					},
+					{
+						path:'/message/attention',
+						name:'messageattention',
+						component: () => import(/* webpackChunkName: "about" */ '../components/message/Attention.vue')
+					},
+					{
+						path:'/message/like',
+						name:'messagelike',
+						component: () => import(/* webpackChunkName: "about" */ '../components/message/Like.vue')
+					}
+				]
 			},
 			{
 				path:'/chat',
 				name:'chat',
-				component: () => import(/* webpackChunkName: "about" */ '../components/home/Chat.vue')
+				component: () => import(/* webpackChunkName: "about" */ '../components/message/Chat.vue')
 			},
 			{
 				path:'/userhome',
@@ -42,7 +81,7 @@ const routes: Array<RouteRecordRaw> = [
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes
 })
 

@@ -10,6 +10,10 @@ export default createStore({
 	username:'',
 	account:'',
 	password:'',
+	haveComment:false,
+	haveAttention:false,
+	haveLike:false,
+	//指的是私信
 	haveMessage:false,
 	chatList:[
 		{

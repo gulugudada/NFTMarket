@@ -17,13 +17,13 @@
 							</el-col>
 							<el-col :span="6">
 								<el-menu
-									default-active="/homepage"
+									default-active="/blog"
 									class="el-menu-demo"
 									mode="horizontal"
 									style="width: 370px;height: 59px;"
 									:router="true"
 								>
-									<el-menu-item index="/homepage">首页</el-menu-item>
+									<el-menu-item index="/blog">博客</el-menu-item>
 									<el-menu-item index="/mall">商城</el-menu-item>
 									<el-menu-item index="/merchant">商家</el-menu-item>
 									<el-menu-item index="/auctionhouse">拍卖行</el-menu-item>
@@ -36,13 +36,6 @@
 										v-model="search"
 										placeholder="请输入搜索的内容"
 								    >
-								    <template #prepend>
-								        <el-select v-model="select" placeholder="商品" style="width: 80px">
-											<el-option label="商品" value="商品" />
-											<el-option label="商家" value="商家" />
-											<el-option label="用户" value="用户" />
-								        </el-select>
-								    </template>
 								    <template #append>
 								        <el-button @click="">
 											<Search style="width: 20px;height: 20px;"/>
@@ -73,9 +66,39 @@
 								<el-button type="text" style="font-size: 16px;color: #000000;padding-top: 21px;padding-left: 15px;">收藏</el-button>
 								<el-button type="text" style="font-size: 16px;color: #000000;padding-top: 21px;padding-left: 5px;">足迹</el-button>
 								<el-button type="text" style="font-size: 16px;color: #000000;padding-top: 21px;padding-left: 5px;">动态</el-button>
-								<el-button type="text" style="font-size: 16px;color: #000000;padding-top: 21px;padding-left: 5px;">
-									<el-badge :is-dot="this.$store.state.haveMessage" @click="toMessage()">信息</el-badge>
-								</el-button>
+								<el-dropdown style="padding-left: 15px;">
+									<el-button type="text" style="font-size: 16px;color: #000000;">
+										<el-badge :is-dot="haveMessage()" @click="toMessage('message')">
+											<div style="margin-bottom: 3px;">
+												消息
+											</div>
+										</el-badge>
+									</el-button>
+									<template #dropdown>
+									    <el-dropdown-menu>
+											<el-dropdown-item @click="toMessage('message/comment')">
+												<el-badge :is-dot="$store.state.haveComment">
+													评论和@
+												</el-badge>
+											</el-dropdown-item>
+											<el-dropdown-item @click="toMessage('message/attention')">
+												<el-badge :is-dot="$store.state.haveAttention">
+													新增粉丝
+												</el-badge>
+											</el-dropdown-item>
+											<el-dropdown-item @click="toMessage('message/like')">
+												<el-badge :is-dot="$store.state.haveLike">
+													赞和收藏
+												</el-badge>
+											</el-dropdown-item>
+											<el-dropdown-item @click="toMessage('chat')">
+												<el-badge :is-dot="haveChat()">
+													私信
+												</el-badge>
+											</el-dropdown-item>
+									    </el-dropdown-menu>
+									</template>
+								</el-dropdown>
 								<el-dropdown split-button type="primary" @click="open()" style="padding-left: 15px;">
 								    铸造NFT
 								    <template #dropdown>
@@ -428,7 +451,30 @@
 		Cookies.remove('loginStatus');
 		proxy.$message({message: '已退出'});
 		proxy.socket.close();
-		proxy.$router.push('/homepage')
+		proxy.$router.push('/blog/recommend')
+	}
+	const haveMessage = () => {
+		if (!proxy.$store.state.haveMessage) {
+			if (!proxy.$store.state.haveComment) {
+				if (!proxy.$store.state.haveAttention) {
+					if (!proxy.$store.state.haveLike) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+	//用来检查所有会话是否都没有未读消息
+	const haveChat = () => {
+		for (let i = 0;i < proxy.$store.state.chatList.length;i++) {
+			if (proxy.$store.state.chatList[i].haveMessage) {
+				proxy.$store.state.haveMessage = true;
+				return true;
+			}
+		}
+		proxy.$store.state.haveMessage = false;
+		return false;
 	}
 	const connectSocket = () => {
 		if(!window.WebSocket){
@@ -495,6 +541,9 @@
 				}
 				else {
 					proxy.$store.state.haveMessage = true;
+					proxy.$store.state.chatList[flag].unreadMessage += 1;
+					proxy.$store.state.chatList[flag].haveMessage = true;
+					
 				}
 			}
 			proxy.socket.onopen = (event) => {
@@ -516,10 +565,18 @@
 			proxy.$message.error("socket错误！");
 		}
 	}
-	const toMessage = () => {
+	const toMessage = (i:String) => {
 		if (proxy.$store.state.isLogin) {
-			proxy.$router.push("/chat");
-			proxy.$store.state.haveMessage = false;
+			proxy.$router.push("/"+i);
+			if (i === "message/comment") {
+				proxy.$store.state.haveComment = false;
+			}
+			else if (i === "message/attention") {
+				proxy.$store.state.haveAttention = false;
+			}
+			else if (i === "message/like") {
+				proxy.$store.state.haveLike = false;
+			}
 		}
 		else {
 			proxy.$message.error("请先登录！");
@@ -594,7 +651,7 @@
 				}
 			}
 		}
-		proxy.$router.push("/homepage")
+		proxy.$router.push("/blog/recommend")
 		//添加监听，当网页关闭时保存当前状态为Cookie
 		window.addEventListener('beforeunload', e => proxy.saveCookie(e))
 	})
@@ -644,5 +701,15 @@
 	}
 	.el-notification .el-icon-success {
 		color: #67c23a !important;
+	}
+	#app > div.home > section > header > div.toolbar > div > div > div > div.el-col.el-col-3.is-guttered {
+		padding-right: 0px !important;
+		padding-left: 15px !important;
+	}
+	#app > div.home > section > header > div.toolbar > div > div > div > div.el-col.el-col-7.is-guttered > div:nth-child(5) > button > span > div > sup {
+		top: 0px !important;
+	}
+	.el-badge__content.is-fixed.is-dot {
+		top: 8px;
 	}
 </style>
