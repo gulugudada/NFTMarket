@@ -5,9 +5,6 @@ import com.c201901090124.nftmarket.utils.Result;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Map;
 
 /**
  * @author 小小怪
@@ -21,4 +18,13 @@ public class UserInfoController {
 
     @Autowired
     UserInfoService userInfoService;
+
+    /**
+     * 获取博客作者推荐
+     * @return
+     */
+    @PostMapping(value = "/getAuthorRecommend")
+    public Result getAuthorRecommend(){
+        return userInfoService.getAuthorRecommend();
+    }
 }

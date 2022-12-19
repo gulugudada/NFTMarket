@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.c201901090124.nftmarket.dao.BlogMapper">
+    <select id="getBlogRecommend" resultMap="BlogMap" parameterType="Integer">
+        SELECT account.userName,blog.*
+        FROM account,blog
+        WHERE account.account = blog.account
+        ORDER BY visits DESC
+        LIMIT #{start},#{count}
+    </select>
+    <select id="getBlogLatest" resultMap="BlogMap" parameterType="Integer">
+        SELECT account.userName,blog.*
+        FROM account,blog
+        WHERE account.account = blog.account
+        ORDER BY id DESC
+        LIMIT #{start},#{count}
+    </select>
+    <select id="getConcernBlogLatest" resultMap="BlogMap">
+        SELECT account.userName,blog.*
+        FROM concern,blog,account
+        WHERE concern.account = #{account} AND concernAccount = blog.account AND account.account = blog.account
+        ORDER BY blog.id DESC
+        LIMIT #{start},#{count}
+    </select>
+    <resultMap id="BlogMap" type="com.c201901090124.nftmarket.entity.Blog">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="account" column="account"/>
+        <result property="userName" column="userName"/>
+        <result property="content" column="content"/>
+        <result property="thumbsUpCount" column="thumbsUpCount"/>
+        <result property="thumbsDownCount" column="thumbsDownCount"/>
+        <result property="visits" column="visits"/>
+        <result property="createTime" column="createTime"/>
+        <result property="cover" column="cover"/>
+    </resultMap>
+    <update id="updateBlog">
+        UPDATE blog
+        SET content = #{content},name = #{name}
+        WHERE id = #{id}
+    </update>
+    <update id="visitBlog">
+        UPDATE blog
+        SET visits = visits + 1
+        WHERE id = #{id} AND name = #{name}
+    </update>
+    <insert id="addBlog" parameterType="com.c201901090124.nftmarket.entity.Blog">
+        INSERT INTO blog(name,account,content,createTime)
+        VALUES (#{name},#{account},#{content},#{createTime})
+    </insert>
+    <delete id="deleteBlog" parameterType="Integer">
+        DELETE
+        FROM blog
+        WHERE id = #{id}
+    </delete>
+</mapper>

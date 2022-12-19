@@ -2,6 +2,23 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.c201901090124.nftmarket.dao.UserInfoMapper">
     <insert id="addUserInfo" parameterType="com.c201901090124.nftmarket.entity.UserInfo">
-        INSERT INTO userinfo(account,avatar) VALUES (#{account},#{avatar})
+        INSERT INTO userinfo(account,profile) VALUES (#{account},#{profile})
     </insert>
+    <select id="getAuthorRecommend" resultMap="UserInfoMap">
+        SELECT account.account,account.userName,account.avatar,userinfo.*
+        FROM account,userinfo
+        WHERE account.account = userinfo.account
+        ORDER BY visits DESC
+        LIMIT 15
+    </select>
+    <resultMap id="UserInfoMap" type="com.c201901090124.nftmarket.entity.UserInfo">
+        <id property="id" column="id"/>
+        <result property="account" column="account"/>
+        <result property="userName" column="userName"/>
+        <result property="profile" column="profile"/>
+        <result property="sex" column="sex"/>
+        <result property="birthday" column="birthday"/>
+        <result property="avatar" column="avatar"/>
+        <result property="visits" column="visits"/>
+    </resultMap>
 </mapper>

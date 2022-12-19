@@ -1,8 +1,8 @@
 package com.c201901090124.nftmarket.netty;
 
 import com.alibaba.fastjson.JSONObject;
-import com.c201901090124.nftmarket.dao.MessageMapper;
-import com.c201901090124.nftmarket.entity.Message;
+import com.c201901090124.nftmarket.dao.ChatMapper;
+import com.c201901090124.nftmarket.entity.Chat;
 import com.c201901090124.nftmarket.utils.SpringUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
@@ -35,9 +35,9 @@ public class NettyHandler extends SimpleChannelInboundHandler<TextWebSocketFrame
 
     //通过Spring获得Mapper，从而使用数据库
     //自动注入在这里无效，因为NettyHandler这个类不归Spring管理
-    private static final MessageMapper messageMapper;
+    private static final ChatMapper chatMapper;
     static {
-        messageMapper = SpringUtil.getBean(MessageMapper.class);
+        chatMapper = SpringUtil.getBean(ChatMapper.class);
     }
 
     //客户端创建的时候触发，当客户端连接上服务端之后，就可以获取该channel，然后放到channelGroup中进行统一管理
@@ -63,16 +63,16 @@ public class NettyHandler extends SimpleChannelInboundHandler<TextWebSocketFrame
         //客户端传递过来的消息
         if (msg.text().contains("{")) {//判断是Json
 //            System.out.println("客户端的消息是:" + msg.text());
-            JSONObject message = (JSONObject) JSONObject.parse(msg.text());
-            String from = message.getString("from");
-            String to = message.getString("to");
-            String content = message.getString("content");
-            Message message1 = new Message(from,to,content,message.getString("sendTime"));
+            JSONObject chat = (JSONObject) JSONObject.parse(msg.text());
+            String from = chat.getString("from");
+            String to = chat.getString("to");
+            String content = chat.getString("content");
+            Chat chat1 = new Chat(from,to,content,chat.getString("sendTime"));
             if (channelMap.containsKey(to)) {
-                clients.find(channelMap.get(to)).writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(message1)));
+                clients.find(channelMap.get(to)).writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(chat1)));
             }
             else {
-                messageMapper.addMessage(message1);
+                chatMapper.addChat(chat1);
             }
         }
         else {//身份信息
@@ -83,12 +83,12 @@ public class NettyHandler extends SimpleChannelInboundHandler<TextWebSocketFrame
 //
 //            }
             channelMap1.replace(ctx.channel().id().asShortText(),content);
-            if (messageMapper.haveMessage(content) > 0) {
-                List<Message> messageList = messageMapper.findMessage(content);
-                for (Message message : messageList) {
-                    ctx.channel().writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(message)));
+            if (chatMapper.haveChat(content) > 0) {
+                List<Chat> chatList = chatMapper.findChat(content);
+                for (Chat chat : chatList) {
+                    ctx.channel().writeAndFlush(new TextWebSocketFrame(JSONObject.toJSONString(chat)));
                 }
-                messageMapper.deleteMessageAll(content);
+                chatMapper.deleteChatAll(content);
             }
 //            System.out.println("接收到了客户端的消息是:" + content);
         }

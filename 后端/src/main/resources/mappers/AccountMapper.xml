@@ -11,21 +11,22 @@
         SELECT COUNT(*) FROM account WHERE account = #{account}
     </select>
     <select id="findAccountByUsername" parameterType="String" resultType="Integer">
-        SELECT COUNT(*) FROM account WHERE username = #{username}
+        SELECT COUNT(*) FROM account WHERE userName = #{userName}
     </select>
     <insert id="addAccount" parameterType="com.c201901090124.nftmarket.entity.Account">
-        INSERT INTO account(account,username,password,createtime) VALUES (#{account},#{username},#{password},#{createtime})
+        INSERT INTO account(account,userName,password,createTime,avatar)
+        VALUES (#{account},#{userName},#{password},#{createTime},#{avatar})
     </insert>
     <update id="resetPassword" parameterType="String">
         UPDATE account SET password = #{password} WHERE account = #{account}
     </update>
     <update id="updateLastTime" parameterType="String">
-        UPDATE account SET lasttime = #{lasttime} WHERE account = #{account}
+        UPDATE account SET lastTime = #{lastTime} WHERE account = #{account}
     </update>
     <update id="updateLastLoginIp" parameterType="String">
-        UPDATE account SET lastloginip = #{ipAddress} WHERE account = #{account}
+        UPDATE account SET lastLoginIp = #{ipAddress} WHERE account = #{account}
     </update>
     <update id="updateAvatar" parameterType="String">
-        UPDATE userinfo SET avatar = #{avatarurl} WHERE account = #{account}
+        UPDATE userinfo SET avatar = #{avatar} WHERE account = #{account}
     </update>
 </mapper>

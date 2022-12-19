@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.c201901090124.nftmarket.dao.ActionMapper">
+    <insert id="addAction" parameterType="com.c201901090124.nftmarket.entity.Action">
+        INSERT INTO action(account,actionId,type,actionType,actionTime)
+        VALUES (#{account},#{actionId},#{type},#{actionType},#{actionTime})
+    </insert>
+    <update id="thumbsUp" parameterType="com.c201901090124.nftmarket.entity.Action">
+        UPDATE ${type}
+        SET thumbsUpCount = thumbsUpCount + 1
+        WHERE #{actionId} = id
+    </update>
+    <update id="thumbsDown" parameterType="com.c201901090124.nftmarket.entity.Action">
+        UPDATE ${type}
+        SET thumbsDownCount = thumbsDownCount + 1
+        WHERE #{actionId} = id
+    </update>
+</mapper>

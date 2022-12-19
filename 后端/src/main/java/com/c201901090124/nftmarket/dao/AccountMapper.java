@@ -16,7 +16,7 @@ public interface AccountMapper {
     int findAccountByUsername(String username);
     int addAccount(Account account);
     int resetPassword(String account,String password);
-    int updateLastTime(String account, String lasttime);
+    int updateLastTime(String account, String lastTime);
     int updateLastLoginIp(String account, String ipAddress);
-    int updateAvatar(String account,String avatarurl);
+    int updateAvatar(String account,String avatar);
 }

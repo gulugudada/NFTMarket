@@ -13,6 +13,6 @@ public class Account {
     private String account;
     private String username;
     private String password;
-    private String createtime;
+    private String createTime;
     private String avatar;
 }

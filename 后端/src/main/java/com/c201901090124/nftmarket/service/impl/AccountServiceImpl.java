@@ -7,10 +7,10 @@ import com.c201901090124.nftmarket.entity.Account;
 import com.c201901090124.nftmarket.entity.UserInfo;
 import com.c201901090124.nftmarket.service.AccountService;
 import com.c201901090124.nftmarket.utils.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -23,14 +23,14 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class AccountServiceImpl implements AccountService {
 
-    @Autowired
+    @Resource
     AccountMapper accountMapper;
 
-    @Autowired
+    @Resource
     UserInfoMapper userInfoMapper;
 
-    @Autowired
-    RedisUtils redisUtils;
+    @Resource
+    RedisService redisUtils;
 
     @Override
     public Result login(String account, String password, HttpServletRequest request) {
@@ -63,12 +63,13 @@ public class AccountServiceImpl implements AccountService {
                     account1.setAccount(account);
                     account1.setUsername(username);
                     account1.setPassword(password);
-                    account1.setCreatetime(DateUtil.getDate());
+                    account1.setCreateTime(DateUtil.getDate());
+                    account1.setAvatar("https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png");
                     if (accountMapper.addAccount(account1) > 0) {
                         redisUtils.remove("verifyCode"+account);
                         UserInfo userInfo = new UserInfo();
                         userInfo.setAccount(account);
-                        userInfo.setAvatar("https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png");
+                        userInfo.setProfile("TA很懒，还没有添加简介");
                         if (userInfoMapper.addUserInfo(userInfo) > 0) {
                             return Result.ok("注册成功");
                         }
@@ -103,6 +104,7 @@ public class AccountServiceImpl implements AccountService {
             return Result.error(-1,"该账号已存在");
         }
         String code = SMS.getSMS(account);
+        //在Redis中创建key为”verifyCode“加账号的项
         if (redisUtils.exists("verifyCode"+account)) {
             redisUtils.remove("verifyCode"+account);
         }

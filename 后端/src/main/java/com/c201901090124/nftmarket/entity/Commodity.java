@@ -16,7 +16,7 @@ public class Commodity {
     private String name;
     private String owner;
     private String sort;
-    private String saletime;
+    private String saleTime;
     //长度为10，小数位为2
     @Column(length = 10,scale = 2)
     private BigDecimal price;

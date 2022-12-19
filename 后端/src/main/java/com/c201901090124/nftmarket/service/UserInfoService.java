@@ -1,6 +1,7 @@
 package com.c201901090124.nftmarket.service;
 
 import com.c201901090124.nftmarket.entity.UserInfo;
+import com.c201901090124.nftmarket.utils.Result;
 import org.springframework.stereotype.Service;
 
 
@@ -11,4 +12,5 @@ import org.springframework.stereotype.Service;
  **/
 @Service
 public interface UserInfoService {
+    Result getAuthorRecommend();
 }
