@@ -26,8 +26,18 @@ const routes: Array<RouteRecordRaw> = [
 						path:'/blog/latest',
 						name:'bloglatest',
 						component: () => import(/* webpackChunkName: "about" */ '../components/blog/BlogLatest.vue')
+					},
+					{
+						path:'/blog/my',
+						name:'blogmy',
+						component: () => import(/* webpackChunkName: "about" */ '../components/blog/BlogMy.vue')
 					}
 				]
+			},
+			{
+				path: '/blogdetails',
+				name: 'blogdetails',
+				component: () => import(/* webpackChunkName: "about" */ '../components/blog/BlogDetails.vue')
 			},
 			{
 				path:'/message',
@@ -69,6 +79,11 @@ const routes: Array<RouteRecordRaw> = [
 				]
 			},
 		]
+	},
+	{
+		path: '/blogedit',
+		name: 'blogedit',
+		component: () => import(/* webpackChunkName: "about" */ '../components/blog/BlogEdit.vue')
 	},
 	{
 		path: '/about',
