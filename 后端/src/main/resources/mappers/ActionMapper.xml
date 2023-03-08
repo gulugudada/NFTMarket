@@ -15,4 +15,14 @@
         SET thumbsDownCount = thumbsDownCount + 1
         WHERE #{actionId} = id
     </update>
+    <select id="getBlogCollectNum" parameterType="Integer" resultType="Integer">
+        SELECT COUNT(*)
+        FROM collect
+        WHERE type = "blog" AND collectId = #{id}
+    </select>
+    <select id="getAuthorCollectCount" parameterType="String" resultType="Integer">
+        SELECT COUNT(*)
+        FROM blog,collect
+        WHERE blog.account = #{account} AND blog.id = collect.collectId
+    </select>
 </mapper>

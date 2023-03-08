@@ -4,6 +4,9 @@
     <select id="findPasswordByAccount" parameterType="String" resultType="String">
         SELECT password FROM account WHERE account = #{account}
     </select>
+    <select id="findAccount" parameterType="String" resultType="com.c201901090124.nftmarket.entity.Account">
+        SELECT * FROM account WHERE account = #{account}
+    </select>
     <select id="findUserNameAvatarByAccount" parameterType="String" resultType="com.c201901090124.nftmarket.entity.Account">
         SELECT * FROM account WHERE account = #{account}
     </select>
@@ -27,6 +30,6 @@
         UPDATE account SET lastLoginIp = #{ipAddress} WHERE account = #{account}
     </update>
     <update id="updateAvatar" parameterType="String">
-        UPDATE userinfo SET avatar = #{avatar} WHERE account = #{account}
+        UPDATE account SET avatar = #{avatar} WHERE account = #{account}
     </update>
 </mapper>

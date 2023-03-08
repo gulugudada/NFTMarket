@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.c201901090124.nftmarket.dao.MessageMapper">
+    <select id="getCommentMessage" resultType="com.c201901090124.nftmarket.entity.Comment">
+        SELECT *
+        FROM comment
+        WHERE comment.account = #{account} AND isVisible = 1
+        ORDER BY comment.id DESC
+        LIMIT #{start},#{count}
+    </select>
+    <select id="getCommentById" resultType="com.c201901090124.nftmarket.entity.Comment" parameterType="Integer">
+        SELECT *
+        FROM comment
+        WHERE id = #{id}
+    </select>
+    <select id="getCommentMessageNum" resultType="Integer" parameterType="String">
+        SELECT COUNT(*)
+        FROM comment
+        WHERE comment.account = #{account} AND isVisible = 1
+    </select>
+    <update id="clearCommentMessage" parameterType="String">
+        UPDATE comment SET isVisible = 0 WHERE account = #{account}
+    </update>
+    <update id="deleteCommentMessage" parameterType="Integer">
+        UPDATE comment SET isVisible = 0 WHERE id = #{id}
+    </update>
+</mapper>

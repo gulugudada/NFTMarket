@@ -2,52 +2,100 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.c201901090124.nftmarket.dao.BlogMapper">
     <select id="getBlogRecommend" resultMap="BlogMap" parameterType="Integer">
-        SELECT account.userName,blog.*
+        SELECT account.*,blog.id as sid,blog.*
         FROM account,blog
-        WHERE account.account = blog.account
+        WHERE account.account = blog.account AND isPublished = 1
         ORDER BY visits DESC
         LIMIT #{start},#{count}
     </select>
     <select id="getBlogLatest" resultMap="BlogMap" parameterType="Integer">
-        SELECT account.userName,blog.*
+        SELECT account.*,blog.id as sid,blog.*
         FROM account,blog
-        WHERE account.account = blog.account
-        ORDER BY id DESC
-        LIMIT #{start},#{count}
-    </select>
-    <select id="getConcernBlogLatest" resultMap="BlogMap">
-        SELECT account.userName,blog.*
-        FROM concern,blog,account
-        WHERE concern.account = #{account} AND concernAccount = blog.account AND account.account = blog.account
+        WHERE account.account = blog.account AND isPublished = 1
         ORDER BY blog.id DESC
         LIMIT #{start},#{count}
     </select>
+    <select id="getConcernBlogLatest" resultMap="BlogMap">
+        SELECT account.*,blog.id as sid,blog.*
+        FROM concern,blog,account
+        WHERE concern.account = #{account} AND concernAccount = blog.account AND account.account = blog.account AND isPublished = 1
+        ORDER BY blog.id DESC
+        LIMIT #{start},#{count}
+    </select>
+    <select id="getAuthorHotBlog" resultMap="BlogMap" parameterType="String">
+        SELECT account.*,blog.id as sid,blog.*
+        FROM account,blog
+        WHERE account.account = blog.account AND isPublished = 1 AND blog.account = #{account}
+        ORDER BY visits DESC
+        LIMIT 0,10
+    </select>
+    <select id="getAuthorLatestBlog" resultMap="BlogMap" parameterType="String">
+        SELECT account.*,blog.id as sid,blog.*
+        FROM account,blog
+        WHERE account.account = blog.account AND isPublished = 1 AND blog.account = #{account}
+        ORDER BY blog.id DESC
+        LIMIT 0,10
+    </select>
+    <select id="getBlogById" resultMap="BlogMap" parameterType="Integer">
+        SELECT account.*,blog.id as sid,blog.*
+        FROM account,blog
+        WHERE account.account = blog.account AND blog.id = #{id}
+    </select>
+    <select id="getBlogByIdEdit" parameterType="Integer" resultType="com.c201901090124.nftmarket.entity.Blog">
+        SELECT id,name,content,abstractContent,cover
+        FROM blog
+        WHERE blog.id = #{id}
+    </select>
+    <select id="getBlogNum" parameterType="String" resultType="map">
+        SELECT COUNT(*),SUM(visits),SUM(thumbsUpCount)
+        FROM blog
+        WHERE blog.account = #{account} AND isPublished = 1
+    </select>
+    <select id="isPublished" parameterType="Integer" resultType="Integer">
+        SELECT COUNT(*)
+        FROM blog
+        WHERE id = #{id} AND isPublished = 1
+    </select>
     <resultMap id="BlogMap" type="com.c201901090124.nftmarket.entity.Blog">
-        <id property="id" column="id"/>
+        <id property="id" column="sid"/>
         <result property="name" column="name"/>
         <result property="account" column="account"/>
+        <result property="avatar" column="avatar"/>
         <result property="userName" column="userName"/>
         <result property="content" column="content"/>
+        <result property="abstractContent" column="abstractContent"/>
         <result property="thumbsUpCount" column="thumbsUpCount"/>
         <result property="thumbsDownCount" column="thumbsDownCount"/>
         <result property="visits" column="visits"/>
         <result property="createTime" column="createTime"/>
+        <result property="publishTime" column="publishTime"/>
+        <result property="modified" column="modified"/>
         <result property="cover" column="cover"/>
     </resultMap>
-    <update id="updateBlog">
+    <update id="updateBlog" parameterType="com.c201901090124.nftmarket.entity.Blog">
         UPDATE blog
-        SET content = #{content},name = #{name}
-        WHERE id = #{id}
+        SET content = #{content},name = #{name},modified = #{modified}
+        WHERE id = #{id} AND account = #{account}
     </update>
-    <update id="visitBlog">
+    <update id="updatePublishedBlog" parameterType="com.c201901090124.nftmarket.entity.Blog">
+        UPDATE blog
+        SET content = #{content},name = #{name},abstractContent = #{abstractContent},cover = #{cover},modified = #{modified},isPublished = 1
+        WHERE id = #{id} AND account = #{account}
+    </update>
+    <update id="visitBlog" parameterType="Integer">
         UPDATE blog
         SET visits = visits + 1
-        WHERE id = #{id} AND name = #{name}
+        WHERE id = #{id}
     </update>
-    <insert id="addBlog" parameterType="com.c201901090124.nftmarket.entity.Blog">
+    <insert id="addBlog" parameterType="com.c201901090124.nftmarket.entity.Blog" useGeneratedKeys="true" keyProperty = "id">
         INSERT INTO blog(name,account,content,createTime)
         VALUES (#{name},#{account},#{content},#{createTime})
     </insert>
+    <update id="publishBlog" parameterType="com.c201901090124.nftmarket.entity.Blog">
+        UPDATE blog
+        SET abstractContent = #{abstractContent},cover = #{cover},modified = #{modified},publishTime = #{publishTime},modified = #{modified},cover = #{cover},isPublished = 1
+        WHERE id = #{id} AND account = #{account}
+    </update>
     <delete id="deleteBlog" parameterType="Integer">
         DELETE
         FROM blog
