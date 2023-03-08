@@ -3,8 +3,10 @@ package com.c201901090124.nftmarket.controller;
 import com.c201901090124.nftmarket.service.UserInfoService;
 import com.c201901090124.nftmarket.utils.Result;
 import io.swagger.annotations.Api;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.Map;
 
 /**
  * @author 小小怪
@@ -16,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin
 public class UserInfoController {
 
-    @Autowired
+    @Resource
     UserInfoService userInfoService;
 
     /**
@@ -27,4 +29,5 @@ public class UserInfoController {
     public Result getAuthorRecommend(){
         return userInfoService.getAuthorRecommend();
     }
+
 }

@@ -11,6 +11,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface AccountMapper {
     String findPasswordByAccount(String account);
+    Account findAccount(String account);
     Account findUserNameAvatarByAccount(String account);
     int findAccountByAccount(String account);
     int findAccountByUsername(String username);

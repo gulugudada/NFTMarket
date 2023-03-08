@@ -1,16 +1,24 @@
 package com.c201901090124.nftmarket.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.extension.api.R;
+import com.c201901090124.nftmarket.dao.ActionMapper;
 import com.c201901090124.nftmarket.dao.BlogMapper;
+import com.c201901090124.nftmarket.dao.MessageMapper;
 import com.c201901090124.nftmarket.entity.Action;
 import com.c201901090124.nftmarket.entity.Blog;
 import com.c201901090124.nftmarket.service.ActionService;
 import com.c201901090124.nftmarket.service.BlogService;
 import com.c201901090124.nftmarket.utils.DateUtil;
+import com.c201901090124.nftmarket.utils.PicUtil;
 import com.c201901090124.nftmarket.utils.Result;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author 小小怪
@@ -22,6 +30,9 @@ public class BlogServiceImpl implements BlogService {
 
     @Resource
     BlogMapper blogMapper;
+
+    @Resource
+    ActionMapper actionMapper;
 
     @Resource
     ActionService actionService;
@@ -85,6 +96,17 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
+    public Result getAuthorHotBlog(String account) {
+        return Result.ok(blogMapper.getAuthorHotBlog(account));
+    }
+
+    //todo  获取作者的最新的博客列表
+    @Override
+    public Result getAuthorLatestBlog(String account) {
+        return Result.ok(blogMapper.getAuthorLatestBlog(account));
+    }
+
+    @Override
     public void thumbsUpBlog(String account, int actionId) {
         Action action = new Action(account,actionId,"blog","点赞", DateUtil.getDate());
         actionService.thumbsUp(action);
@@ -96,31 +118,123 @@ public class BlogServiceImpl implements BlogService {
         actionService.thumbsDown(action);
     }
 
+    //Preview时通过id获取博客信息的接口
     @Override
-    public Result getBlog(int id,String name) {
-        //返回博客内容部分未完成
+    public Result getBlogPreview(int id) {
+        Blog blog = blogMapper.getBlogById(id);
+        if (blog != null) {
+            Result result = Result.ok("获取成功！");
+            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(blog);
+            jsonObject.put("collectNum", actionMapper.getBlogCollectNum(id));
+            //todo  获得评论以及评论的数量的方法
+            jsonObject.put("commentNum", actionMapper.getBlogCollectNum(id));
+            result.put("data",jsonObject);
+            //不管是谁都算访问量
+            blogMapper.visitBlog(id);
+            return result;
+        }
+        return Result.error(-1, "获取失败！");
+    }
 
+    //Edit时通过id获取博客信息的接口
+    @Override
+    public Result getBlogEdit(int id) {
+        Blog blog = blogMapper.getBlogByIdEdit(id);
+        if (blog != null) {
+            return Result.ok(blog);
+        }
+        return Result.error(-1, "获取失败！");
+    }
 
+    @Override
+    public Result saveBlog(int id,String name, String account, String content) {
+        //前端如果进行博客的创建  id就会是初始值
+        //前端如果进行博客的修改  id就不会是初始值
+        //初始值设定为19
+        Blog blog = new Blog(name,account,content);
+        if (id == 19) {
+            if (blogMapper.addBlog(blog) > 0) {
+                Result result = Result.ok("保存成功");
+                result.put("id", blog.getId());
+                return result;
+            }
+        }
+        else {
+            blog.setId(id);
+            if (blogMapper.updateBlog(blog) > 0) {
+                return Result.ok("保存成功");
+            }
+        }
+        return Result.error(-1,"保存失败");
+    }
 
-        blogMapper.visitBlog(id,name);
+    private JSONObject uploadBlogCover(MultipartFile file) {
+        JSONObject json = null;
+        try {
+            json = PicUtil.singleFileUpload(file, "/blog/cover");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    @Override
+    public Result publishBlog(Blog blog, MultipartFile file) {
+        if (blog.getId() == 19) {
+            if (blogMapper.addBlog(blog) > 0) {
+                if (!Objects.isNull(file) && !file.isEmpty()) {//判断非空
+                    JSONObject json = uploadBlogCover(file);
+                    if (json.getInteger("code") == -1) {
+                        return Result.error(-1,json.getString("msg"));
+                    }
+                    blog.setCover("/blog/cover/" + json.getString("msg"));
+                }
+                if (blogMapper.publishBlog(blog) == 1) {
+                    Result result = Result.ok("发布成功");
+                    result.put("id", blog.getId());
+                    return result;
+                }
+            }
+        }
+        else {
+            if (!Objects.isNull(file) && !file.isEmpty()) {//判断非空
+                JSONObject json = uploadBlogCover(file);
+                if (json.getInteger("code") == -1) {
+                    return Result.error(-1,json.getString("msg"));
+                }
+                blog.setCover("/blog/cover/" + json.getString("msg"));
+            }
+            if (blogMapper.isPublished(blog.getId()) == 1) {
+                if (blogMapper.updatePublishedBlog(blog) > 1) {
+                    return Result.ok("发布成功");
+                }
+            }
+            else {
+                if (blogMapper.publishBlog(blog) == 1) {
+                    return Result.ok("发布成功");
+                }
+            }
+        }
         return null;
     }
 
     @Override
-    public Result addBlog(String name, String account, String content) {
-        Blog blog = new Blog(name,account,content,DateUtil.getDate());
-        if (blogMapper.addBlog(blog) > 0) {
-            return Result.ok("发布成功");
+    public Result uploadBLogImage(MultipartFile file) {
+        JSONObject json = null;
+        try {
+            json = PicUtil.singleFileUpload(file, "/blog/image");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        return Result.error(-1,"发布失败");
-    }
-
-    @Override
-    public Result updateBlog(int id, String name, String content) {
-        if (blogMapper.updateBlog(id,name,content) > 0) {
-            return Result.ok("修改成功");
+        assert json != null;
+        if (json.getInteger("code") == -1) {
+            return Result.error(-1,json.getString("msg"));
         }
-        return Result.error(-1,"修改失败");
+        String imageURL = "/blog/image/" + json.getString("msg");
+        Result result = new Result();
+        result.put("msg","上传成功");
+        result.put("imageurl",imageURL);
+        return result;
     }
 
     @Override

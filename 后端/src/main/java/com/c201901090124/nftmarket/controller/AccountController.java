@@ -78,4 +78,14 @@ public class AccountController {
     public Result getAccount(@RequestBody Map<String, String> map) {
         return accountService.getAccount(map.get("account"));
     }
+
+    /**
+     * 获取博客详情的作者信息
+     * @return
+     */
+    @PostMapping(value = "/getAuthor")
+    public Result getBlogAuthor(@RequestBody Map<String, String> map){
+        return accountService.getBlogAuthor(map.get("account"));
+    }
+
 }

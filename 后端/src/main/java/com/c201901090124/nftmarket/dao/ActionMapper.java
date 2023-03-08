@@ -13,4 +13,6 @@ public interface ActionMapper {
     void thumbsUp(Action action);
     void thumbsDown(Action action);
     void addAction(Action action);
+    int getBlogCollectNum(int id);
+    int getAuthorCollectCount(String account);
 }

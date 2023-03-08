@@ -1,19 +1,21 @@
 package com.c201901090124.nftmarket.dao;
 
-import com.c201901090124.nftmarket.entity.Message;
+import com.c201901090124.nftmarket.entity.Comment;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
 /**
  * @author 小小怪
  * @title MessageMapper
- * @create 2022/10/3 21:52
+ * @create 2022/11/28 11:53
  **/
 @Mapper
 public interface MessageMapper {
-    public int addMessage(Message message);
-    public int deleteMessageAll(String account);
-    public int haveMessage(String account);
-    public List<Message> findMessage(String account);
+    List<Comment> getCommentMessage(@Param("account") String account, @Param("start") int start, @Param("count") int count);
+    Comment getCommentById(int id);
+    int getCommentMessageNum(String account);
+    void clearCommentMessage(String account);
+    void deleteCommentMessage(int id);
 }

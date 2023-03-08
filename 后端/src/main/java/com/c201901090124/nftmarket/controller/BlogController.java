@@ -1,12 +1,15 @@
 package com.c201901090124.nftmarket.controller;
 
+import com.alibaba.fastjson.JSONObject;
+import com.c201901090124.nftmarket.entity.Blog;
 import com.c201901090124.nftmarket.service.BlogService;
 import com.c201901090124.nftmarket.utils.Result;
 import io.swagger.annotations.Api;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -48,6 +51,16 @@ public class BlogController {
         return blogService.getConcernBlogLatest(map.get("account"),Integer.parseInt(map.get("pageNum")));
     }
 
+    @PostMapping("getAuthorHotBlog")
+    public Result getAuthorHotBlog(@RequestBody Map<String, String> map) {
+        return blogService.getAuthorHotBlog(map.get("account"));
+    }
+
+    @PostMapping("getAuthorLatestBlog")
+    public Result getAuthorLatestBlog(@RequestBody Map<String, String> map) {
+        return blogService.getAuthorLatestBlog(map.get("account"));
+    }
+
     @PostMapping("thumbsUpBlog")
     public void thumbsUpBlog(@RequestBody Map<String, String> map) {
         blogService.thumbsUpBlog(map.get("account"),Integer.parseInt(map.get("actionId")));
@@ -58,19 +71,29 @@ public class BlogController {
         blogService.thumbsDownBlog(map.get("account"),Integer.parseInt(map.get("actionId")));
     }
 
-    @PostMapping("getBlog")
-    public Result getBlog(@RequestBody Map<String, String> map){
-        return blogService.getBlog(Integer.parseInt(map.get("id")),map.get("name"));
+    @PostMapping("getBlogPreview")
+    public Result getBlogPreview(@RequestBody Map<String, String> map){
+        return blogService.getBlogPreview(Integer.parseInt(map.get("id")));
     }
 
-    @PostMapping("addBlog")
-    public Result addBlog(@RequestBody Map<String, String> map){
-        return blogService.addBlog(map.get("name"),map.get("account"),map.get("content"));
+    @PostMapping("getBlogEdit")
+    public Result getBlogEdit(@RequestBody Map<String, String> map){
+        return blogService.getBlogEdit(Integer.parseInt(map.get("id")));
     }
 
-    @PostMapping("updateBlog")
-    public Result updateBlog(@RequestBody Map<String, String> map){
-        return blogService.updateBlog(Integer.parseInt(map.get("id")),map.get("name"),map.get("content"));
+    @PostMapping("saveBlog")
+    public Result saveBlog(@RequestBody Map<String, String> map) {
+        return blogService.saveBlog(Integer.parseInt(map.get("id")), map.get("name"), map.get("account"), map.get("content"));
+    }
+
+    @PostMapping("publishBlog")
+    public Result publishBlog(@RequestParam("id") String id, @RequestParam("name") String name, @RequestParam("account") String account,  @RequestParam("content") String content,  @RequestParam("abstractContent") String abstractContent, @RequestParam(value = "file", required=false)  MultipartFile file) {
+        return blogService.publishBlog(new Blog(Integer.parseInt(id), name, account, content, abstractContent), file);
+    }
+
+    @PostMapping("uploadBlogImage")
+    public Result uploadBlogImage(@RequestParam("file") MultipartFile file) throws IOException {
+        return blogService.uploadBLogImage(file);
     }
 
     @PostMapping("deleteBlog")

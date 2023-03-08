@@ -16,6 +16,8 @@ import javax.annotation.Resource;
 @Service
 public class ActionServiceImpl implements ActionService {
 
+    //todo  取消动作的方法未完成
+
     @Resource
     ActionMapper actionMapper;
 

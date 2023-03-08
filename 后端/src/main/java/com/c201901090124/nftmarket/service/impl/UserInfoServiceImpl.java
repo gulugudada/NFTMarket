@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -19,13 +20,13 @@ import java.util.List;
 @Service
 public class UserInfoServiceImpl implements UserInfoService {
 
-    @Autowired
+    @Resource
     AccountMapper accountMapper;
 
-    @Autowired
+    @Resource
     UserInfoMapper userInfoMapper;
 
-    @Autowired
+    @Resource
     RedisService redisService;
 
     //只读缓存
@@ -54,4 +55,5 @@ public class UserInfoServiceImpl implements UserInfoService {
             redisService.lPush("authorRecommend",userInfo);
         }
     }
+
 }

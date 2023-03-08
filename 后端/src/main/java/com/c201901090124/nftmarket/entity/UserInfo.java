@@ -15,6 +15,6 @@ public class UserInfo {
     private String profile;
     private char sex;
     private String birthday;
-    private String avatar;
     private int visits;
+    private String avatar;
 }

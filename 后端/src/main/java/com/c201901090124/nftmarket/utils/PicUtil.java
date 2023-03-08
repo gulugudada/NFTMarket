@@ -17,10 +17,10 @@ import java.util.UUID;
 @CrossOrigin
 public class PicUtil {
     //这是本地存入的格式，上传到服务器的话，格式类似于，"/root/images/pc/"
-    private static String UPLOAD_FOLDER = "D:/IntelliJ IDEA 2021.2.3/code/JavaProgram/NFTMarket/src/main/resources/templates/avatar";
+    private static String UPLOAD_FOLDER = "D:/IntelliJ IDEA 2021.2.3/code/JavaProgram/NFTMarket/src/main/resources/templates";
 
     //Thread.currentThread().getContextClassLoader().getResource("").getPath();(获取当前的绝对路径的方法，这里不用，得到的是这样的东西:file:/D:/java/eclipse32/workspace/jbpmtest3/bin/)
-    public static JSONObject singleFileUpload(MultipartFile pc1) throws IOException {
+    public static JSONObject singleFileUpload(MultipartFile pc1,String seat) throws IOException {
         JSONObject json = new JSONObject();
         // logger.debug("传入的文件参数：{}", JSON.toJSONString(file, true));
         if (Objects.isNull(pc1) || pc1.isEmpty()) {//判断非空
@@ -31,7 +31,7 @@ public class PicUtil {
         try {
             byte[] bytes = pc1.getBytes();
             //要存入本地的地址放到path里面
-            Path path = Paths.get(UPLOAD_FOLDER + "/");
+            Path path = Paths.get(UPLOAD_FOLDER + seat + "/");
             //如果没有files文件夹，则创建
             if (!Files.isWritable(path)) {
                 Files.createDirectories(path);

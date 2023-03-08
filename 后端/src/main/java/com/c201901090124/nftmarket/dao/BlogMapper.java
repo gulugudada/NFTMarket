@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 小小怪
@@ -16,8 +17,16 @@ public interface BlogMapper {
     List<Blog> getBlogRecommend(int start,int count);
     List<Blog> getBlogLatest(int start,int count);
     List<Blog> getConcernBlogLatest(@Param("account") String account,@Param("start") int start,@Param("count") int count);
-    int updateBlog(@Param("id") int id,@Param("name") String name,@Param("content") String content);
-    void visitBlog(@Param("id") int id,@Param("name") String name);
+    List<Blog> getAuthorHotBlog(String account);
+    List<Blog> getAuthorLatestBlog(String account);
+    Blog getBlogById(int id);
+    Blog getBlogByIdEdit(int id);
+    Map<String,Integer> getBlogNum(String account);
+    int isPublished(int id);
+    int updateBlog(Blog blog);
+    int updatePublishedBlog(Blog blog);
+    void visitBlog(int id);
     int addBlog(Blog blog);
+    int publishBlog(Blog blog);
     int deleteBlog(int id);
 }

@@ -2,6 +2,8 @@ package com.c201901090124.nftmarket.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.c201901090124.nftmarket.dao.AccountMapper;
+import com.c201901090124.nftmarket.dao.ActionMapper;
+import com.c201901090124.nftmarket.dao.BlogMapper;
 import com.c201901090124.nftmarket.dao.UserInfoMapper;
 import com.c201901090124.nftmarket.entity.Account;
 import com.c201901090124.nftmarket.entity.UserInfo;
@@ -13,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -27,7 +30,13 @@ public class AccountServiceImpl implements AccountService {
     AccountMapper accountMapper;
 
     @Resource
+    BlogMapper blogMapper;
+
+    @Resource
     UserInfoMapper userInfoMapper;
+
+    @Resource
+    ActionMapper actionMapper;
 
     @Resource
     RedisService redisUtils;
@@ -139,7 +148,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Result uploadAvatar(String account, MultipartFile file) throws IOException {
-        JSONObject json = PicUtil.singleFileUpload(file);
+        JSONObject json = PicUtil.singleFileUpload(file, "/avatar");
         if (json.getInteger("code") == -1) {
             return Result.error(-1,json.getString("msg"));
         }
@@ -167,4 +176,23 @@ public class AccountServiceImpl implements AccountService {
         }
         return Result.error(-1,"登录状态更新失败");
     }
+
+    @Override
+    public Result getBlogAuthor(String account) {
+        Account account1 = accountMapper.findAccount(account);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("account", account1.getAccount());
+        jsonObject.put("username", account1.getUsername());
+        jsonObject.put("avatar", account1.getAvatar());
+        jsonObject.put("createTime", account1.getCreateTime().split(" ")[0]);
+        Map<String, Integer> map = blogMapper.getBlogNum(account);
+        jsonObject.put("blogCount", map.get("COUNT(*)"));
+        //todo  访问量需要加动态的访问量
+        jsonObject.put("visits", map.get("SUM(visits)"));
+        jsonObject.put("thumbsUpCount", map.get("SUM(thumbsUpCount)"));
+//        jsonObject.put("commentCount", );
+        jsonObject.put("collectCount", actionMapper.getAuthorCollectCount(account));
+        return Result.ok(jsonObject);
+    }
+
 }
