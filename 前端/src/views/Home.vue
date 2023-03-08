@@ -4,7 +4,7 @@
 			<el-header style="padding: 0;height: auto;">
 				<el-carousel height="190px" :interval="5000" arrow="always">
 				    <el-carousel-item v-for="item in bannerImage" :key="item" style="height: 190px;">
-						<div :style="'background-image: url(' + item + ');height :190px;'"></div>
+						<div :style="'background-image: url(' + $store.state.url + item + ');height :190px;'"></div>
 				    </el-carousel-item>
 				</el-carousel>
 				<div class="toolbar">
@@ -99,10 +99,11 @@
 									    </el-dropdown-menu>
 									</template>
 								</el-dropdown>
-								<el-dropdown split-button type="primary" @click="open()" style="padding-left: 15px;">
-								    铸造NFT
+								<el-dropdown split-button type="primary" @click="toBlogEdit(1)" style="padding-left: 15px;">
+								    写博客
 								    <template #dropdown>
 								        <el-dropdown-menu>
+											<el-dropdown-item @click="">铸造NFT</el-dropdown-item>
 											<el-dropdown-item @click="">发动态</el-dropdown-item>
 											<el-dropdown-item @click="connectMetaMask()">连接MetaMask</el-dropdown-item>
 								        </el-dropdown-menu>
@@ -212,9 +213,10 @@
 	import Cookies from "ts-cookies"
 	const { proxy } = getCurrentInstance()
 	const bannerImage = ref([
-		"https://s1.imagehub.cc/images/2021/11/09/_b5770dfc-28f3-40ae-9008-1f175d8a5391-10886022.webp",
-		"https://s1.imagehub.cc/images/2021/11/09/_374c7865-67ea-45e3-877c-d1c67b92cc5d-10886022.webp",
-		"https://s1.imagehub.cc/images/2021/11/09/_df764511-2618-428d-8373-c6c78aede70c-10886022.webp"
+		"/backgroundimage/1.webp",
+		"/backgroundimage/2.webp",
+		"/backgroundimage/3.webp",
+		"/backgroundimage/4.webp"
 	])
 	const select = ref('商品')
 	const search = ref('')
@@ -582,6 +584,14 @@
 			proxy.$message.error("请先登录！");
 		}
 	}
+	const toBlogEdit = (id:int) => {
+		if (proxy.$store.state.isLogin) {
+			proxy.$router.push({path:'/blogedit',query: {id: id}});
+		}
+		else {
+			proxy.$message.error("请先登录！");
+		}
+	}
 	const saveCookie = () => {
 		if (proxy.$store.state.isLogin) {
 			var loginStatus = {
@@ -684,20 +694,20 @@
 		margin-top: 10px;
 	}
 	#app > div > section > header > div.toolbar > div > div > div > div.el-col.el-col-8.is-guttered > div > div > div.el-input-group__append {
-		width: 20px;
-		padding-left: 10px;
-		padding-right: 10px;
+		width: 20px !important;
+		padding-left: 10px !important;
+		padding-right: 10px !important;
 	}
 	#app > div.el-overlay > div > div.el-dialog__header {
-		font-family:隶书;
-		font-size: 55px;
+		font-family:隶书 !important;
+		font-size: 55px !important;
 	}
 	#app > div.el-overlay > div > div.el-dialog__header > span {
-		font-size: 55px;
+		font-size: 55px !important;
 	}
 	#app > div.el-overlay > div > div.el-dialog__body {
-		padding-top: 10px;
-		padding-bottom: 0px;
+		padding-top: 10px !important;
+		padding-bottom: 0px !important;
 	}
 	.el-notification .el-icon-success {
 		color: #67c23a !important;
