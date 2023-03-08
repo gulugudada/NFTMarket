@@ -61,7 +61,7 @@
 	.message-contain {
 		position : absolute;
 		width: 75%;
-		height: 900px;
+		height: 800px;
 		margin-left: 170px;
 	}
 	.menu-item {
@@ -85,7 +85,7 @@
 		box-shadow: 0px 16px 48px 16px rgba(0, 0, 0, .08), 0px 12px 32px rgba(0, 0, 0, .12), 0px 8px 16px -8px rgba(0, 0, 0, .16);
 	}
 	.el-main-contain {
-		height: 880px;
+		height: 780px;
 	}
 </style>
 

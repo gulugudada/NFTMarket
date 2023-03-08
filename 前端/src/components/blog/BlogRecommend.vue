@@ -10,21 +10,21 @@
 				    <li v-for="(item,index) in list.blogList">
 							<div style="height: 120px;">
 								<div>
-									<a href="https://element.eleme.io" style="color: #000000;text-decoration : none;">
+									<a href="#" style="color: #000000;text-decoration : none;" @click="toBlogPreview(index)">
 										<span>
 											{{item.name}}
 										</span>
 									</a>
 								</div>
 								<div style="display: flex;">
-									<a v-if="item.cover !== null" href="https://element.eleme.io" style="text-decoration : none;">
+									<a v-if="item.cover !== null" href="#" style="text-decoration : none;" @click="toBlogPreview(index)">
 										<el-image style="width: 120px; height: 80px;margin-top: 10px;margin-right: 10px;" :src="$store.state.url+item.cover" fit="fit" />
 									</a>
 									<div style="flex: 1;margin-top: 10px;height: 80px;">
-										<a href="https://element.eleme.io" style="text-decoration : none;color: #000000;">
+										<a href="#" style="text-decoration : none;color: #000000;" @click="toBlogPreview(index)">
 											<div style="height: 60px;width: 900px;">
 												<p class="blog-content">
-													{{item.content}}
+													{{item.abstractContent}}
 												</p>
 											</div>
 										</a>
@@ -147,6 +147,9 @@
 			console.log(err)
 		})
 	}
+	const toBlogPreview = (index:int) => {
+		proxy.$router.push({path:'/blogdetails',query: {id: proxy.list.blogList[index].id}});
+	}
 	const renovate = () => {
 		//用来刷新页面
 		key.value += 1;
@@ -183,7 +186,7 @@
 		margin-right: 10px;
 		border-radius: 2px;
 		border-top: 2px solid #e8e8ed;
-		box-shadow: 0px 16px 48px 16px rgba(0, 0, 0, .08), 0px 12px 32px rgba(0, 0, 0, .12), 0px 8px 16px -8px rgba(0, 0, 0, .16);
+		box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 	}
 	.author-recomment-title {
 		padding-left: 18px;
@@ -215,14 +218,9 @@
 		font-size: 14px;
 		font-weight: 400;
 		color: #555666;
-		overflow : hidden;
-		/*2. 文字用省略号替代超出的部分 */
-		text-overflow: ellipsis;
-		/* 3. 弹性伸缩盒子模型显示 */
 		display: -webkit-box;
-		/* 4. 限制在一个块元素显示的文本的行数 */
-		-webkit-line-clamp: 3;
-		/* 5. 设置或检索伸缩盒对象的子元素的排列方式 */
+		overflow: hidden;
 		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 3;
 	}
 </style>

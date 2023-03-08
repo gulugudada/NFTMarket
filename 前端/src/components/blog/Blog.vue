@@ -10,10 +10,9 @@
 				    :router="true"
 				>
 					<el-menu-item index="/blog/recommend">推荐</el-menu-item>
-					<el-menu-item index="/blog/attention">关注</el-menu-item>
 					<el-menu-item index="/blog/latest">最新</el-menu-item>
-					<el-menu-item index="/daiding">待定</el-menu-item>
-					<el-menu-item index="/daiding">待定</el-menu-item>
+					<el-menu-item index="/blog/attention">关注</el-menu-item>
+					<el-menu-item index="/blog/my">我的</el-menu-item>
 				</el-menu>
 			</el-header>
 		    <el-main style="padding-left: 0;padding-right: 0;">
@@ -41,7 +40,7 @@
 	}
 	.el-menu-demo {
 		margin-top: 5px;
-		box-shadow: 0 4px 30px 0 rgb(232 232 237 / 50%);
+		box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 	}
 	.el-menu--horizontal>.el-menu-item.is-active {
 		border-bottom: 2px;
